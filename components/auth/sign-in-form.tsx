@@ -7,6 +7,7 @@ import { PasswordInput } from "@/components/auth/password-input"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client"
 
 const inputClassName =
   "h-12 rounded-[12px] border-white/15 bg-white/[0.03] px-4 text-base text-white placeholder:text-white/40 focus-visible:border-brand focus-visible:ring-brand/25 dark:bg-white/[0.03] md:text-base"
@@ -14,15 +15,22 @@ const inputClassName =
 function SignInForm() {
   const [status, setStatus] = React.useState<string | null>(null)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+     console.log("Form submitted!");
     const values = Object.fromEntries(
       new FormData(event.currentTarget).entries()
     )
 
+    const { data:signInResponse, error } = await authClient.signIn.email({
+    email: values.email as string, // required, The email address of the user.
+    password: values.password as string, // required, The password of the user. It should be at least 8 characters long and max 128 by default.
+    rememberMe: true, // If false, the user will be signed out when the browser is closed. (optional) (default: true)
+    callbackURL: "/", // An optional URL to redirect to after the user signs in. (optional)
+});
     // Collected for the future Better Auth integration.
-    console.log("[HireLoop] Sign in form submitted", values)
+    console.log("Sign in response", signInResponse, error)
     setStatus("Form captured — authentication can be wired up here.")
   }
 
