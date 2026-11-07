@@ -3,6 +3,7 @@ import {
   Geist_Mono,
   Instrument_Sans,
   Manrope,
+  Space_Mono,
 } from "next/font/google"
 
 import "./globals.css"
@@ -27,6 +28,12 @@ const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
 })
 
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,7 +49,8 @@ export default function RootLayout({
         "font-sans",
         geist.variable,
         manrope.variable,
-        instrumentSans.variable
+        instrumentSans.variable,
+        spaceMono.variable
       )}
     >
       <body>
