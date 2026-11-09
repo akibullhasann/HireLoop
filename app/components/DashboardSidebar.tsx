@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useSession } from "@/lib/auth-client"
 import { menuItemsByRole } from "@/lib/dashboard-menu"
+import Link from "next/link"
 
 export function DashboardSidebar() {
     const { data: session } = useSession()
@@ -36,7 +37,7 @@ export function DashboardSidebar() {
                             return (
                                 <SidebarMenuItem key={item.id}>
                                     <SidebarMenuButton
-                                        render={<a href={item.url} />}
+                                        render={<Link href={item.url} />}
                                         isActive={isActive}
                                     >
                                         <item.icon />

@@ -20,11 +20,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useSession, signOut } from "@/lib/auth-client"
 
-const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/companies" },
-  { label: "Pricing", href: "/pricing" },
-]
+
 
 const authLinks = [
   { label: "Sign In", href: "/sign-in" },
@@ -36,6 +32,13 @@ function SiteHeader() {
   const pathname = usePathname()
   const { data: session } = useSession();
   console.log('user session in the navbar', session)
+
+  const navLinks = [
+  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Company", href: "/companies" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "Dashboard", href: `/dashboard/${session?.user.role || 'seeker'}` },
+]
 
   const closeMobile = () => setMobileOpen(false)
 

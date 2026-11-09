@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileText,
   LayoutDashboard,
+  PlusCircle,
   Settings,
   Users,
 } from "lucide-react"
@@ -77,6 +78,12 @@ export const menuItemsByRole: Record<UserRole, DashboardMenuItem[]> = {
       name: "Manage Jobs",
       url: "/dashboard/recruiter/jobs",
       icon: BriefcaseBusiness,
+    },
+    {
+      id: "add-job",
+      name: "Add Job",
+      url: "/dashboard/recruiter/jobs/new",
+      icon: PlusCircle,
     },
     {
       id: "applications",
