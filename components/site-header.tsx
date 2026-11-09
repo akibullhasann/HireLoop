@@ -18,6 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { useSession, signOut } from "@/lib/auth-client"
 
 const navLinks = [
   { label: "Browse Jobs", href: "/jobs" },
@@ -33,11 +34,17 @@ const authLinks = [
 function SiteHeader() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession();
+  console.log('user session in the navbar', session)
 
   const closeMobile = () => setMobileOpen(false)
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`)
+  
+  const handleSignOut = async () =>{
+    await signOut();
+  }
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
@@ -82,26 +89,40 @@ function SiteHeader() {
             className="h-6 w-px bg-[#a8a8a8]/40"
           />
 
-          <div className="flex items-center gap-4">
-            <Link
-              href={authLinks[0].href}
-              className={cn(
-                buttonVariants({ variant: "secondary" }),
-                "h-12 rounded-[12px] bg-white px-6 font-button text-lg font-semibold text-brand shadow-none hover:bg-white/90 lg:h-[58px]"
-              )}
-            >
-              {authLinks[0].label}
-            </Link>
-            <Link
-              href={authLinks[1].href}
-              className={cn(
-                buttonVariants(),
-                "h-12 rounded-[12px] px-6 font-cta text-lg font-medium lg:h-[58px]"
-              )}
-            >
-              {authLinks[1].label}
-            </Link>
-          </div>
+          {session?.user ?
+            <div>
+              <div className="text-[#EDEDEF]">Welcome,{session.user.name}</div>
+              <Button
+               onClick={handleSignOut}
+               nativeButton={false}
+               className="h-[38px] rounded-[8px] bg-transparent px-4 text-lg font-semibold text-[#645AFF] hover:bg-white/5 hover:text-[#645AFF]"
+              >Sign Out</Button>
+            </div>
+            :
+
+            <>
+              <div className="flex items-center gap-4">
+                <Link
+                  href={authLinks[0].href}
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "h-12 rounded-[12px] bg-white px-6 font-button text-lg font-semibold text-brand shadow-none hover:bg-white/90 lg:h-[58px]"
+                  )}
+                >
+                  {authLinks[0].label}
+                </Link>
+                <Link
+                  href={authLinks[1].href}
+                  className={cn(
+                    buttonVariants(),
+                    "h-12 rounded-[12px] px-6 font-cta text-lg font-medium lg:h-[58px]"
+                  )}
+                >
+                  {authLinks[1].label}
+                </Link>
+              </div>
+            </>
+          }
         </div>
 
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

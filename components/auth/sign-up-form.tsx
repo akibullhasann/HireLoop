@@ -19,6 +19,13 @@ type FormStatus = {
   message: string
 }
 
+const roleOptions = [
+  { value: "seeker", label: "Job seeker", description: "Looking for roles" },
+  { value: "recruiter", label: "Recruiter", description: "Hiring talent" },
+  { value: "admin", label: "Admin", description: "Manage the platform" },
+] as const
+
+type Role = (typeof roleOptions)[number]["value"]
 function SignUpForm() {
   const router = useRouter()
   const [status, setStatus] = React.useState<FormStatus | null>(null)
@@ -26,6 +33,7 @@ function SignUpForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
 
     const form = event.currentTarget
     const values = Object.fromEntries(new FormData(form).entries())
@@ -37,6 +45,8 @@ function SignUpForm() {
       })
       return
     }
+    const role: Role =
+      roleOptions.find((o) => o.value === values.role)?.value ?? "seeker"
 
     setPending(true)
     setStatus(null)
@@ -46,6 +56,7 @@ function SignUpForm() {
         name: String(values.name),
         email: String(values.email),
         password: String(values.password),
+        role,
         callbackURL: "/",
       })
 
@@ -90,6 +101,34 @@ function SignUpForm() {
             placeholder="Jane Doe"
             className={inputClassName}
           />
+        </Field>
+        <Field>
+          <FieldLabel className="font-heading text-sm font-medium text-white">
+            I am a
+          </FieldLabel>
+          <div role="radiogroup" className="grid gap-3 sm:grid-cols-3">
+            {roleOptions.map((option, index) => (
+              <label
+                key={option.value}
+                className="cursor-pointer rounded-[12px] border border-white/15 bg-white/[0.03] p-3 transition-colors has-[:checked]:border-brand has-[:checked]:bg-brand/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/25"
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={option.value}
+                  defaultChecked={index === 0}
+                  required
+                  className="sr-only"
+                />
+                <span className="block font-heading text-sm font-medium text-white">
+                  {option.label}
+                </span>
+                <span className="block text-xs text-white/55">
+                  {option.description}
+                </span>
+              </label>
+            ))}
+          </div>
         </Field>
 
         <Field>
