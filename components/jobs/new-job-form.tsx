@@ -8,7 +8,7 @@ import {
   Field,
   FieldDescription,
   FieldGroup,
-  FieldLabel,
+  FieldLabel, 
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { createJob } from "@/lib/actions/jobs"
 
 const categories = [
   "Design",
@@ -59,7 +60,7 @@ const textareaClassName =
 
 type JobStatus = "draft" | "published"
 
-type NewJob = {
+export type NewJob = {
   title: string
   company: string
   category: string
@@ -99,7 +100,7 @@ function readForm(form: HTMLFormElement, submitter: HTMLElement | null): NewJob 
 function NewJobForm() {
   const [submitted, setSubmitted] = React.useState<NewJob | null>(null)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const submitter = (event.nativeEvent as SubmitEvent).submitter
@@ -109,6 +110,8 @@ function NewJobForm() {
     // wired to an API later without touching the individual fields.
     console.log("New job:", job)
     setSubmitted(job)
+    const result = await createJob(job);
+    console.log('created job', result);
   }
 
   return (
