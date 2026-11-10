@@ -8,7 +8,7 @@ import {
   Field,
   FieldDescription,
   FieldGroup,
-  FieldLabel, 
+  FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { createJob } from "@/lib/actions/jobs"
+import type { JobSubmission, NewJob } from "@/lib/jobs"
 
 const categories = [
   "Design",
@@ -58,29 +59,14 @@ const selectTriggerClassName =
 const textareaClassName =
   "min-h-32 resize-y rounded-[12px] border-white/10 bg-[#1a1a1f] px-3 py-3 text-[13px] leading-5 text-[#ededef] shadow-none placeholder:text-[#828997] focus-visible:border-brand focus-visible:ring-brand/25 dark:bg-[#1a1a1f]"
 
-type JobStatus = "draft" | "published"
-
-export type NewJob = {
-  title: string
-  company: string
-  category: string
-  location: string
-  employmentType: string
-  workMode: string
-  experienceLevel: string
-  salaryRange: string
-  deadline: string
-  description: string
-  responsibilities: string
-  requirements: string
-  status: JobStatus
-}
-
-function readForm(form: HTMLFormElement, submitter: HTMLElement | null): NewJob {
+function readForm(
+  form: HTMLFormElement,
+  submitter: HTMLElement | null
+): JobSubmission {
   const data = new FormData(form, submitter)
   const value = (key: string) => String(data.get(key) ?? "").trim()
 
-  return {
+  const job: NewJob = {
     title: value("title"),
     company: value("company"),
     category: value("category"),
@@ -93,12 +79,16 @@ function readForm(form: HTMLFormElement, submitter: HTMLElement | null): NewJob 
     description: value("description"),
     responsibilities: value("responsibilities"),
     requirements: value("requirements"),
+  }
+
+  return {
+    ...job,
     status: value("status") === "draft" ? "draft" : "published",
   }
 }
 
 function NewJobForm() {
-  const [submitted, setSubmitted] = React.useState<NewJob | null>(null)
+  const [submitted, setSubmitted] = React.useState<JobSubmission | null>(null)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -110,8 +100,8 @@ function NewJobForm() {
     // wired to an API later without touching the individual fields.
     console.log("New job:", job)
     setSubmitted(job)
-    const result = await createJob(job);
-    console.log('created job', result);
+    const result = await createJob(job)
+    console.log("created job", result)
   }
 
   return (
@@ -274,7 +264,10 @@ function NewJobForm() {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="experienceLevel" className={labelClassName}>
+                <FieldLabel
+                  htmlFor="experienceLevel"
+                  className={labelClassName}
+                >
                   Experience
                 </FieldLabel>
                 <Select name="experienceLevel" defaultValue="Mid level">
