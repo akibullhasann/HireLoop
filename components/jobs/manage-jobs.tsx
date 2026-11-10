@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { dummyJobs } from "@/lib/dummy-jobs"
+import { deleteJob } from "@/lib/api/jobs"
 import type { ManagedJob, ManagedJobStatus } from "@/lib/jobs"
 import { cn } from "@/lib/utils"
 
@@ -83,19 +84,33 @@ function formatDate(value: string) {
   return `${months[month - 1]} ${day}, ${year}`
 }
 
-function ManageJobs() {
-  const [jobs, setJobs] = React.useState<ManagedJob[]>(dummyJobs)
+type ManageJobsProps = {
+  jobs: ManagedJob[]
+  error?: string | null
+}
+
+function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
+  const router = useRouter()
+
+  const [deletedIds, setDeletedIds] = React.useState<string[]>([])
   const [query, setQuery] = React.useState("")
   const [status, setStatus] = React.useState<"all" | ManagedJobStatus>("all")
   const [category, setCategory] = React.useState("all")
+  const [deletingId, setDeletingId] = React.useState<string | null>(null)
+  const [actionError, setActionError] = React.useState<string | null>(null)
+  const [isRefreshing, startRefresh] = React.useTransition()
 
-  const categories = React.useMemo(
-    () => [
-      "all",
-      ...Array.from(new Set(dummyJobs.map((job) => job.category))).sort(),
-    ],
-    []
+  // Server data stays the source of truth; deletions are applied on top of it.
+  const jobs = React.useMemo(
+    () => initialJobs.filter((job) => !deletedIds.includes(job.id)),
+    [initialJobs, deletedIds]
   )
+
+  const categories = React.useMemo(() => {
+    const values = new Set(jobs.map((job) => job.category).filter(Boolean))
+
+    return ["all", ...Array.from(values).sort()]
+  }, [jobs])
 
   const filteredJobs = React.useMemo(() => {
     const search = query.trim().toLowerCase()
@@ -112,12 +127,22 @@ function ManageJobs() {
     })
   }, [jobs, query, status, category])
 
-  function handleDelete(job: ManagedJob) {
+  async function handleDelete(job: ManagedJob) {
     const confirmed = window.confirm(`Delete "${job.title}"?`)
 
     if (!confirmed) return
 
-    setJobs((current) => current.filter((item) => item.id !== job.id))
+    setDeletingId(job.id)
+    setActionError(null)
+
+    try {
+      await deleteJob(job.id)
+      setDeletedIds((current) => [...current, job.id])
+    } catch {
+      setActionError(`Could not delete "${job.title}". Please try again.`)
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   return (
@@ -140,6 +165,37 @@ function ManageJobs() {
           Create Job
         </Link>
       </div>
+
+      {error && (
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-[12px] border border-red-500/25 bg-red-500/10 p-4 text-[13px] text-red-200 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="font-medium">Could not load your job posts.</p>
+            <p className="mt-0.5 text-red-200/70">{error}</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isRefreshing}
+            onClick={() => startRefresh(() => router.refresh())}
+            className="h-9 shrink-0 rounded-[8px] border-red-500/30 bg-transparent text-[13px] text-red-100 hover:bg-red-500/10 hover:text-white"
+          >
+            {isRefreshing && <Loader2 className="size-4 animate-spin" />}
+            Try again
+          </Button>
+        </div>
+      )}
+
+      {actionError && (
+        <div
+          role="alert"
+          className="rounded-[12px] border border-red-500/25 bg-red-500/10 p-4 text-[13px] text-red-200"
+        >
+          {actionError}
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_190px_190px]">
         <div>
@@ -178,7 +234,12 @@ function ManageJobs() {
               id="status-filter"
               className={selectTriggerClassName}
             >
-              <SelectValue />
+              <SelectValue>
+                {(value: string) =>
+                  statusOptions.find((option) => option.value === value)
+                    ?.label ?? "All statuses"
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {statusOptions.map((option) => (
@@ -205,7 +266,11 @@ function ManageJobs() {
               id="category-filter"
               className={selectTriggerClassName}
             >
-              <SelectValue />
+              <SelectValue>
+                {(value: string) =>
+                  !value || value === "all" ? "All categories" : value
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {categories.map((option) => (
@@ -338,10 +403,15 @@ function ManageJobs() {
                         size="icon"
                         aria-label={`Delete ${job.title}`}
                         title="Delete job"
+                        disabled={deletingId === job.id}
                         onClick={() => handleDelete(job)}
                         className="size-8 text-[#a1a4aa] hover:bg-red-500/10 hover:text-red-400"
                       >
-                        <Trash2 className="size-4" />
+                        {deletingId === job.id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="size-4" />
+                        )}
                       </Button>
                     </div>
                   </TableCell>
@@ -350,9 +420,24 @@ function ManageJobs() {
             ) : (
               <TableRow className="border-white/7 hover:bg-transparent">
                 <TableCell colSpan={8} className="px-4 py-16 text-center">
-                  <p className="text-[13px] text-[#a1a4aa]">
-                    No job posts match your filters.
-                  </p>
+                  {jobs.length === 0 ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-[13px] text-[#a1a4aa]">
+                        No job posts yet. Create your first one to get started.
+                      </p>
+                      <Link
+                        href="/dashboard/recruiter/jobs/new"
+                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[8px] bg-[#fafafa] px-4 text-[13px] font-medium text-[#0b0b0c] transition-colors hover:bg-white/90"
+                      >
+                        <Plus className="size-4" />
+                        Create Job
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-[13px] text-[#a1a4aa]">
+                      No job posts match your filters.
+                    </p>
+                  )}
                 </TableCell>
               </TableRow>
             )}

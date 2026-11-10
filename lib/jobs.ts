@@ -24,5 +24,5 @@ export type ManagedJobStatus = "active" | "closed" | "draft"
 export type ManagedJob = NewJob & {
   id: string
   status: ManagedJobStatus
-  postedAt: string
+  postedAt?: string
 }
