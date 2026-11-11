@@ -1,9 +1,23 @@
 "use client"
+import { Trash2, Trash2Icon } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { Loader2, Pencil, Plus, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -128,9 +142,9 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
   }, [jobs, query, status, category])
 
   async function handleDelete(job: ManagedJob) {
-    const confirmed = window.confirm(`Delete "${job.title}"?`)
 
-    if (!confirmed) return
+
+
 
     setDeletingId(job.id)
     setActionError(null)
@@ -397,22 +411,55 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
                       >
                         <Pencil className="size-4" />
                       </Link>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Delete ${job.title}`}
-                        title="Delete job"
-                        disabled={deletingId === job.id}
-                        onClick={() => handleDelete(job)}
-                        className="size-8 text-[#a1a4aa] hover:bg-red-500/10 hover:text-red-400"
-                      >
-                        {deletingId === job.id ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
+
+                      <AlertDialog>
+                        <AlertDialogTrigger
+                          render={
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Delete ${job.title}`}
+                              title="Delete job"
+                              disabled={deletingId === job.id}
+                              className="size-8 text-[#a1a4aa] hover:bg-red-500/10 hover:text-red-400"
+                            />
+                          }
+                        >
                           <Trash2 className="size-4" />
-                        )}
-                      </Button>
+                        </AlertDialogTrigger>
+
+                        <AlertDialogContent size="sm">
+                          <AlertDialogHeader>
+                            <AlertDialogMedia>
+                              <Trash2Icon />
+                            </AlertDialogMedia>
+
+                            <AlertDialogTitle>
+                              Delete job?
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                              Are you sure you want to delete
+                              {job.title}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          <AlertDialogFooter>
+                            <AlertDialogCancel variant="outline">
+                              Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                              variant="destructive"
+                              onClick={() => handleDelete(job)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+
                     </div>
                   </TableCell>
                 </TableRow>

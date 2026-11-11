@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { CheckCircle2, Sparkles } from "lucide-react"
+import { useRouter } from 'next/navigation'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { createJob } from "@/lib/actions/jobs"
 import type { JobSubmission, NewJob } from "@/lib/jobs"
+import { toast } from "@/components/ui/toast"
 
 const categories = [
   "Design",
@@ -89,6 +91,7 @@ function readForm(
 
 function NewJobForm() {
   const [submitted, setSubmitted] = React.useState<JobSubmission | null>(null)
+  const router = useRouter()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -102,6 +105,15 @@ function NewJobForm() {
     setSubmitted(job)
     const result = await createJob(job)
     console.log("created job", result)
+
+    if(result.insertedId){
+      toast.add({
+        title:'job has been created',
+        description: 'the job has been suceesfully created'
+      })
+      router.push('/dashboard/recruiter/jobs')
+    }
+    
   }
 
   return (
