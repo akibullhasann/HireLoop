@@ -1,3 +1,6 @@
+'use client'
+
+
 import {
   BadgeCheck,
   Bookmark,
@@ -11,6 +14,9 @@ import type { LucideIcon } from "lucide-react"
 import { formatJobDate } from "@/lib/format"
 import type { ManagedJob } from "@/lib/jobs"
 import { cn } from "@/lib/utils"
+import { useSession } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
+import { applyToAJob } from "@/lib/actions/applications"
 
 type JobDetailProps = {
   job: ManagedJob
@@ -82,6 +88,40 @@ function BulletList({ items }: { items: string[] }) {
  * provide and the content sections are only rendered when they have data.
  */
 function JobDetail({ job }: JobDetailProps) {
+
+  const router = useRouter();
+  const {data:session} = useSession();
+  const user = session?.user
+
+  const handleApplyNow = async() =>{
+    if(!user){
+      router.push(`/sign-in?redirectTo=/browse-jobs/${job.id}`)
+      return
+    }
+    else if(user.role==='seeker'){
+      // TODO: Only send jobId and userId or email address for the application //
+ 
+      const application = {
+        jobId: job.id ,
+        userId: user.id,
+        email: user.email,
+        jobTitle: job.title,
+        companyName: job.company
+      }
+      const result = await applyToAJob(application);
+      if(result.insertedId){
+        console.log("Application has been submitted succesfully");
+        router.push('/browse-jobs')
+      }
+    }
+    else{
+      console.log('user is not a seeker of the job')
+    }
+  }
+
+
+
+
   const initial = initialOf(job.company || job.title)
   const responsibilities = splitLines(job.responsibilities)
   const requirements = splitLines(job.requirements)
@@ -159,6 +199,7 @@ function JobDetail({ job }: JobDetailProps) {
             </button>
 
             <button
+              onClick={handleApplyNow}
               type="button"
               className="inline-flex h-12 items-center justify-center rounded-[8px] bg-[#fafafa] px-6 text-[16px] leading-6 font-medium text-[#0b0b0c] shadow-[0_2px_2px_rgba(0,0,0,0.35)] transition-colors hover:bg-white"
             >
