@@ -6,6 +6,14 @@ export type JobFilterKey = Extract<
   "category" | "employmentType" | "workMode" | "experienceLevel" | "location"
 >
 
+/**
+ * How a filter group accepts input:
+ * - `single`: one option at a time (radio)
+ * - `multiple`: any number of options (checkbox)
+ * - `search`: type to narrow the options, then pick one (radio)
+ */
+export type JobFilterControl = "single" | "multiple" | "search"
+
 export type JobFilterOption = {
   value: string
   count: number
@@ -14,18 +22,22 @@ export type JobFilterOption = {
 export type JobFilterGroup = {
   key: JobFilterKey
   label: string
+  control: JobFilterControl
   options: JobFilterOption[]
 }
 
-const filterLabels: Record<JobFilterKey, string> = {
-  category: "Category",
-  employmentType: "Job Type",
-  workMode: "Work Mode",
-  experienceLevel: "Experience",
-  location: "Location",
+const filterMeta: Record<
+  JobFilterKey,
+  { label: string; control: JobFilterControl }
+> = {
+  category: { label: "Category", control: "single" },
+  employmentType: { label: "Job Type", control: "single" },
+  workMode: { label: "Work Mode", control: "multiple" },
+  experienceLevel: { label: "Experience", control: "multiple" },
+  location: { label: "Location", control: "search" },
 }
 
-const filterKeys = Object.keys(filterLabels) as JobFilterKey[]
+const filterKeys = Object.keys(filterMeta) as JobFilterKey[]
 
 /** Derives each filter group (with counts) from the jobs on the board. */
 export function buildJobFilters(jobs: ManagedJob[]): JobFilterGroup[] {
@@ -42,7 +54,7 @@ export function buildJobFilters(jobs: ManagedJob[]): JobFilterGroup[] {
 
       return {
         key,
-        label: filterLabels[key],
+        ...filterMeta[key],
         options: Array.from(counts, ([value, count]) => ({
           value,
           count,
