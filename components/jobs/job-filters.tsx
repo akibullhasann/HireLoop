@@ -1,96 +1,76 @@
-"use client"
+import { Check } from "lucide-react"
 
-import { Search } from "lucide-react"
-
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import type { JobFilter } from "@/lib/job-filters"
+import type { JobFilterGroup } from "@/lib/job-filters"
 import { cn } from "@/lib/utils"
 
-const inputClassName =
-  "h-12 rounded-[10px] border-white/10 bg-[#101014] pr-4 pl-11 text-[14px] text-[#ededef] shadow-none placeholder:text-[#828997] focus-visible:border-brand focus-visible:ring-brand/25 dark:border-white/10 dark:bg-[#101014]"
-
-const triggerClassName =
-  "h-10! w-full! rounded-[10px] border-white/10 bg-[#101014] px-3 text-[13px] text-[#ededef] shadow-none data-placeholder:text-[#828997] focus-visible:border-brand focus-visible:ring-brand/25 dark:border-white/10 dark:bg-[#101014] dark:hover:bg-[#141419]"
-
 type JobFiltersProps = {
-  filters: JobFilter[]
+  filters: JobFilterGroup[]
   className?: string
 }
 
 /**
- * Presentational search + filter controls.
+ * Figma "Aside - Sidebar Filters" with checkbox groups and result counts.
  *
- * They are intentionally uncontrolled: syncing the values with the URL and
- * the server query is handled separately.
+ * Checkboxes are uncontrolled and have no change handler yet: applying the
+ * selection to the URL/query is handled separately.
  */
 function JobFilters({ filters, className }: JobFiltersProps) {
   return (
-    <section
-      aria-label="Search and filter jobs"
+    <aside
+      aria-labelledby="job-filters-heading"
       className={cn(
-        "rounded-[16px] border border-white/10 bg-[#0b0b0e] p-4 sm:p-5",
+        "rounded-[12px] border border-white/[0.07] bg-[#141418] p-5 shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)] sm:p-[25px]",
         className
       )}
     >
-      <div className="relative">
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#828997]"
-        />
-        <label htmlFor="job-search" className="sr-only">
-          Search jobs
-        </label>
-        <Input
-          id="job-search"
-          name="search"
-          type="search"
-          autoComplete="off"
-          placeholder="Search by job title, company, or skill"
-          className={inputClassName}
-        />
-      </div>
+      <h2
+        id="job-filters-heading"
+        className="font-heading text-[22px] leading-7 font-semibold text-[#ededef]"
+      >
+        Filters
+      </h2>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-        {filters.map((filter) => (
-          <div key={filter.key} className="flex min-w-0 flex-col gap-1.5">
-            <label
-              htmlFor={`filter-${filter.key}`}
-              className="font-label text-[10px] tracking-[0.12em] text-[#6e6e78] uppercase"
-            >
-              {filter.label}
-            </label>
+      <div className="mt-6 flex flex-col gap-6">
+        {filters.map((group) => (
+          <fieldset key={group.key}>
+            <legend className="text-[16px] leading-[27px] font-semibold text-[#ededef]">
+              {group.label}
+            </legend>
 
-            <Select name={filter.key}>
-              <SelectTrigger
-                id={`filter-${filter.key}`}
-                className={triggerClassName}
-              >
-                <SelectValue placeholder={filter.placeholder} />
-              </SelectTrigger>
+            <div className="mt-2 flex flex-col gap-2">
+              {group.options.map((option) => (
+                <label
+                  key={option.value}
+                  className="group flex cursor-pointer items-center gap-3"
+                >
+                  <input
+                    type="checkbox"
+                    name={group.key}
+                    value={option.value}
+                    className="peer sr-only"
+                  />
 
-              <SelectContent className="border border-white/10 bg-[#141418] text-[#ededef]">
-                {filter.options.map((option) => (
-                  <SelectItem
-                    key={option}
-                    value={option}
-                    className="focus:bg-white/10 focus:text-white"
+                  <span
+                    aria-hidden="true"
+                    className="grid size-5 shrink-0 place-items-center rounded-[4px] border border-white/[0.07] bg-[#1a1a1f] text-transparent transition-colors peer-checked:border-white peer-checked:bg-white peer-checked:text-[#141418] peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40"
                   >
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                    <Check className="size-3.5" strokeWidth={3} />
+                  </span>
+
+                  <span className="min-w-0 flex-1 truncate text-[13px] leading-5 text-[#a0a0ab] transition-colors group-hover:text-[#ededef]">
+                    {option.value}
+                  </span>
+
+                  <span className="shrink-0 text-[12px] text-[#6e6e78]">
+                    {option.count}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         ))}
       </div>
-    </section>
+    </aside>
   )
 }
 

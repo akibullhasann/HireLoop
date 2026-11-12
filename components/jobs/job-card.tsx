@@ -1,67 +1,117 @@
-import { Briefcase, Layers, MapPin, Wallet } from "lucide-react"
+import {
+  Bookmark,
+  Briefcase,
+  CalendarDays,
+  Layers,
+  MapPin,
+  Tag,
+  Wallet,
+} from "lucide-react"
 
 import { formatJobDate } from "@/lib/format"
-import type { ManagedJob } from "@/lib/jobs"
+import type { ManagedJob, ManagedJobStatus } from "@/lib/jobs"
+import { cn } from "@/lib/utils"
 
 type JobCardProps = {
   job: ManagedJob
 }
 
+const statusLabels: Record<ManagedJobStatus, string> = {
+  active: "Open",
+  closed: "Closed",
+  draft: "Draft",
+}
+
+const statusStyles: Record<ManagedJobStatus, string> = {
+  active: "border-[#22c55e]/30 bg-[#22c55e]/10 text-[#22c55e]",
+  closed: "border-white/10 bg-white/5 text-[#a0a0ab]",
+  draft: "border-[#f59e0b]/30 bg-[#f59e0b]/10 text-[#f59e0b]",
+}
+
+/**
+ * Figma "Article - Job Card", adapted to the fields available on `ManagedJob`.
+ */
 function JobCard({ job }: JobCardProps) {
   const initial = job.company.charAt(0).toUpperCase() || "?"
-  const meta = [
-    { icon: MapPin, value: job.location || "Location not set" },
-    { icon: Briefcase, value: job.employmentType || "Job type not set" },
-    { icon: Layers, value: job.experienceLevel || "Experience not set" },
-  ]
+
+  const chips = [
+    { label: "Salary", icon: Wallet, value: job.salaryRange },
+    { label: "Job type", icon: Briefcase, value: job.employmentType },
+    { label: "Work mode", icon: MapPin, value: job.workMode },
+    { label: "Experience", icon: Layers, value: job.experienceLevel },
+    { label: "Category", icon: Tag, value: job.category },
+    {
+      label: "Deadline",
+      icon: CalendarDays,
+      value: job.deadline ? `Apply by ${formatJobDate(job.deadline)}` : "",
+    },
+  ].filter((chip) => chip.value)
 
   return (
-    <article className="flex h-full flex-col rounded-[16px] border border-white/8 bg-[#0c0c0f] p-5 transition-colors hover:border-brand/40 hover:bg-[#0e0e12]">
-      <div className="flex items-start gap-3">
+    <article className="rounded-[12px] border border-white/[0.07] bg-[#141418] p-4 shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)] transition-colors hover:border-white/15 sm:p-[25px]">
+      <div className="flex items-start gap-4 sm:gap-5">
         <span
           aria-hidden="true"
-          className="grid size-11 shrink-0 place-items-center rounded-[12px] border border-white/7 bg-[#1a1a1f] font-heading text-base font-semibold text-white"
+          className="grid size-14 shrink-0 place-items-center rounded-[8px] border border-white/[0.07] bg-[#222228] font-heading text-xl font-semibold text-[#ededef] sm:size-16"
         >
           {initial}
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[12px] text-[#828997]">{job.company}</p>
-          <h2 className="mt-0.5 line-clamp-2 font-heading text-[15px] leading-6 font-semibold text-white">
-            {job.title}
-          </h2>
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-heading text-lg leading-7 font-semibold text-[#ededef] sm:text-[22px]">
+                {job.title}
+              </h3>
+              <p className="mt-1 truncate text-[14px] font-semibold text-[#6e6e78] sm:text-[16px]">
+                {job.company}
+                {job.location && ` • ${job.location}`}
+                {job.workMode && ` (${job.workMode})`}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              aria-label={`Save ${job.title}`}
+              className="grid size-10 shrink-0 place-items-center rounded-[8px] text-[#8e9192] transition-colors hover:bg-white/5 hover:text-[#ededef]"
+            >
+              <Bookmark aria-hidden="true" className="size-[18px]" />
+            </button>
+          </div>
+
+          {job.description && (
+            <p className="mt-3 line-clamp-2 text-[13px] leading-6 text-[#828997]">
+              {job.description}
+            </p>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {chips.map(({ label, icon: Icon, value }) => (
+              <span
+                key={label}
+                className="inline-flex h-[30px] items-center gap-1.5 rounded-[8px] border border-white/10 bg-[#1a1a1f] px-3 text-[13px] font-medium text-[#ededef]"
+              >
+                <Icon aria-hidden="true" className="size-3.5 text-[#e5e2e3]" />
+                {value}
+              </span>
+            ))}
+
+            <span
+              className={cn(
+                "inline-flex h-[30px] items-center rounded-[4px] border px-2.5 text-[13px] font-medium",
+                statusStyles[job.status]
+              )}
+            >
+              {statusLabels[job.status]}
+            </span>
+          </div>
+
+          {job.postedAt && (
+            <p className="mt-3 text-[12px] text-[#6e6e78]">
+              Posted {formatJobDate(job.postedAt)}
+            </p>
+          )}
         </div>
-
-        {job.workMode && (
-          <span className="shrink-0 rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-[11px] font-medium text-brand">
-            {job.workMode}
-          </span>
-        )}
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[12px] text-[#a1a4aa]">
-        {meta.map(({ icon: Icon, value }) => (
-          <span key={value} className="flex items-center gap-1.5">
-            <Icon aria-hidden="true" className="size-3.5 text-[#6e6e78]" />
-            {value}
-          </span>
-        ))}
-      </div>
-
-      {job.description && (
-        <p className="mt-4 line-clamp-2 text-[13px] leading-6 text-[#828997]">
-          {job.description}
-        </p>
-      )}
-
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/7 pt-4">
-        <span className="flex items-center gap-1.5 text-[13px] font-medium text-[#ededef]">
-          <Wallet aria-hidden="true" className="size-4 text-[#6e6e78]" />
-          {job.salaryRange || "Salary not disclosed"}
-        </span>
-        <span className="text-[12px] text-[#828997]">
-          Apply by {formatJobDate(job.deadline)}
-        </span>
       </div>
     </article>
   )
