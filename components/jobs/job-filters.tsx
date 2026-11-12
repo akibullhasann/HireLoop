@@ -66,16 +66,25 @@ function FilterOption({
   )
 }
 
-/** Searchable single-select filter used for locations. */
+/** Searchable multi-select filter used for locations. */
 function SearchableFilter({ group }: { group: JobFilterGroup }) {
   const [query, setQuery] = React.useState("")
-  const [selected, setSelected] = React.useState<string | null>(null)
+  const [selected, setSelected] = React.useState<string[]>([])
 
   const term = query.trim().toLowerCase()
   const options = group.options.filter(
     (option) =>
-      option.value === selected || option.value.toLowerCase().includes(term)
+      selected.includes(option.value) ||
+      option.value.toLowerCase().includes(term)
   )
+
+  function toggle(value: string) {
+    setSelected((current) =>
+      current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value]
+    )
+  }
 
   return (
     <fieldset>
@@ -115,11 +124,11 @@ function SearchableFilter({ group }: { group: JobFilterGroup }) {
           options.map((option) => (
             <FilterOption
               key={option.value}
-              type="radio"
+              type="checkbox"
               name={group.key}
               option={option}
-              checked={selected === option.value}
-              onChange={() => setSelected(option.value)}
+              checked={selected.includes(option.value)}
+              onChange={() => toggle(option.value)}
             />
           ))
         ) : (
@@ -133,9 +142,9 @@ function SearchableFilter({ group }: { group: JobFilterGroup }) {
 /**
  * Figma "Aside - Sidebar Filters".
  *
- * Category and Job Type accept a single value, Work Mode and Experience accept
- * multiple values, and Location is searchable. The selection is not written to
- * the URL or the server query yet.
+ * Category and Job Type accept a single value, Work Mode, Experience and
+ * Location accept multiple values (Location is also searchable). The selection
+ * is not written to the URL or the server query yet.
  */
 function JobFilters({ filters, className }: JobFiltersProps) {
   return (

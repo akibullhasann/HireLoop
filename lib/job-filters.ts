@@ -10,7 +10,7 @@ export type JobFilterKey = Extract<
  * How a filter group accepts input:
  * - `single`: one option at a time (radio)
  * - `multiple`: any number of options (checkbox)
- * - `search`: type to narrow the options, then pick one (radio)
+ * - `search`: type to narrow the options, then toggle any number of them (checkbox)
  */
 export type JobFilterControl = "single" | "multiple" | "search"
 
