@@ -76,11 +76,24 @@ export async function getJobs(query: string = ""): Promise<ManagedJob[]> {
 }
 
 /** Looks up a single job by id. Deduped per request for metadata + page. */
-export const getJob = cache(async (id: string): Promise<ManagedJob | null> => {
-  const jobs = await getJobs()
+export const getJobById = cache(
+  async (jobId: string): Promise<ManagedJob | null> => {
+    const res = await fetch(`${BASE_URL}/jobs/${jobId}`, { cache: "no-store" })
 
-  return jobs.find((job) => job.id === id) ?? null
-})
+    // A missing id (404) or a malformed one (400) both mean "no job here".
+    if (res.status === 404 || res.status === 400) return null
+
+    if (!res.ok) {
+      throw new Error(`The jobs API responded with ${res.status}.`)
+    }
+
+    const data: unknown = await res.json()
+
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null
+
+    return toManagedJob(data as ApiJob)
+  }
+)
 
 export async function deleteJob(id: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/jobs/${id}`, { method: "DELETE" })

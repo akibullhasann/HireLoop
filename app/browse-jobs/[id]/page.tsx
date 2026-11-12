@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 import { AlertCircle } from "lucide-react"
 
 import { JobDetail } from "@/components/jobs/job-detail"
-import { getJob } from "@/lib/api/jobs"
+import { getJobById } from "@/lib/api/jobs"
 import type { ManagedJob } from "@/lib/jobs"
 
 export const dynamic = "force-dynamic"
@@ -19,7 +19,7 @@ export async function generateMetadata({
   const { id } = await params
 
   try {
-    const job = await getJob(id)
+    const job = await getJobById(id)
 
     if (!job) return { title: "Job not found | HireLoop" }
 
@@ -66,7 +66,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
   let error: string | null = null
 
   try {
-    job = await getJob(id)
+    job = await getJobById(id)
   } catch (cause) {
     error = cause instanceof Error ? cause.message : "Failed to load the job."
   }
