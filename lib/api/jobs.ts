@@ -1,3 +1,5 @@
+import { cache } from "react"
+
 import type { ManagedJob, ManagedJobStatus } from "@/lib/jobs"
 
 const BASE_URL =
@@ -72,6 +74,13 @@ export async function getJobs(query: string = ""): Promise<ManagedJob[]> {
 
   return data.map((job) => toManagedJob(job as ApiJob))
 }
+
+/** Looks up a single job by id. Deduped per request for metadata + page. */
+export const getJob = cache(async (id: string): Promise<ManagedJob | null> => {
+  const jobs = await getJobs()
+
+  return jobs.find((job) => job.id === id) ?? null
+})
 
 export async function deleteJob(id: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/jobs/${id}`, { method: "DELETE" })
