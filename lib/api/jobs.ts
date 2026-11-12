@@ -53,11 +53,11 @@ function toManagedJob(job: ApiJob): ManagedJob {
     responsibilities: text(job.responsibilities),
     requirements: text(job.requirements),
     status: normalizeStatus(job.status),
-    postedAt: job.postedAt,
+    postedAt: text(job.postedAt),
   }
 }
 
-export async function getJobs(query: string=''): Promise<ManagedJob[]> {
+export async function getJobs(query: string = ""): Promise<ManagedJob[]> {
   const res = await fetch(`${BASE_URL}/jobs?${query}`, { cache: "no-store" })
 
   if (!res.ok) {

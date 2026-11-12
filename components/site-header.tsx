@@ -20,8 +20,6 @@ import {
 import { cn } from "@/lib/utils"
 import { useSession, signOut } from "@/lib/auth-client"
 
-
-
 const authLinks = [
   { label: "Sign In", href: "/sign-in" },
   { label: "Get Started", href: "/sign-up" },
@@ -30,15 +28,18 @@ const authLinks = [
 function SiteHeader() {
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const pathname = usePathname()
-  const { data: session } = useSession();
-  console.log('user session in the navbar', session)
+  const { data: session } = useSession()
+  console.log("user session in the navbar", session)
 
   const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/companies" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "Dashboard", href: `/dashboard/${session?.user.role || 'seeker'}` },
-]
+    { label: "Browse Jobs", href: "/browse-jobs" },
+    { label: "Company", href: "/companies" },
+    { label: "Pricing", href: "/pricing" },
+    {
+      label: "Dashboard",
+      href: `/dashboard/${session?.user.role || "seeker"}`,
+    },
+  ]
 
   const closeMobile = () => setMobileOpen(false)
 
@@ -48,9 +49,9 @@ function SiteHeader() {
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`)
-  
-  const handleSignOut = async () =>{
-    await signOut();
+
+  const handleSignOut = async () => {
+    await signOut()
   }
 
   return (
@@ -91,22 +92,20 @@ function SiteHeader() {
             })}
           </nav>
 
-          <span
-            aria-hidden="true"
-            className="h-6 w-px bg-[#a8a8a8]/40"
-          />
+          <span aria-hidden="true" className="h-6 w-px bg-[#a8a8a8]/40" />
 
-          {session?.user ?
+          {session?.user ? (
             <div>
               <div className="text-[#EDEDEF]">Welcome,{session.user.name}</div>
               <Button
-               onClick={handleSignOut}
-               nativeButton={false}
-               className="h-[38px] rounded-[8px] bg-transparent px-4 text-lg font-semibold text-[#645AFF] hover:bg-white/5 hover:text-[#645AFF]"
-              >Sign Out</Button>
+                onClick={handleSignOut}
+                nativeButton={false}
+                className="h-[38px] rounded-[8px] bg-transparent px-4 text-lg font-semibold text-[#645AFF] hover:bg-white/5 hover:text-[#645AFF]"
+              >
+                Sign Out
+              </Button>
             </div>
-            :
-
+          ) : (
             <>
               <div className="flex items-center gap-4">
                 <Link
@@ -129,7 +128,7 @@ function SiteHeader() {
                 </Link>
               </div>
             </>
-          }
+          )}
         </div>
 
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -161,11 +160,7 @@ function SiteHeader() {
                 className="w-fit"
                 onClick={closeMobile}
               >
-                <Image
-                  src={logo}
-                  alt="HireLoop"
-                  className="h-9 w-auto"
-                />
+                <Image src={logo} alt="HireLoop" className="h-9 w-auto" />
               </Link>
             </SheetHeader>
 

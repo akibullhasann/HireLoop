@@ -4,11 +4,7 @@ import { Briefcase, MapPin, Search } from "lucide-react"
 
 import globe from "@/app/images/globe.png"
 
-const trendingRoles = [
-  "Product Designer",
-  "AI Engineering",
-  "Dev-ops Engineer",
-]
+const trendingRoles = ["Product Designer", "AI Engineering", "Dev-ops Engineer"]
 
 function HeroSection() {
   return (
@@ -19,7 +15,7 @@ function HeroSection() {
         aria-hidden="true"
         priority
         sizes="100vw"
-        className="pointer-events-none absolute top-0 left-1/2 -z-10 h-auto w-[1440px] min-w-full max-w-none -translate-x-1/2 select-none"
+        className="pointer-events-none absolute top-0 left-1/2 -z-10 h-auto w-[1440px] max-w-none min-w-full -translate-x-1/2 select-none"
       />
       <div
         aria-hidden="true"
@@ -51,10 +47,10 @@ function HeroSection() {
           </div>
 
           <div className="flex flex-col gap-4 text-center">
-            <h1 className="text-balance font-heading text-4xl leading-[1.15] font-bold tracking-[-0.02em] text-white sm:text-5xl lg:text-[56px]">
+            <h1 className="font-heading text-4xl leading-[1.15] font-bold tracking-[-0.02em] text-balance text-white sm:text-5xl lg:text-[56px]">
               Find Your Dream Job Today
             </h1>
-            <p className="mx-auto max-w-[784px] text-pretty font-heading text-base leading-relaxed text-white sm:text-lg lg:text-xl lg:leading-[1.6]">
+            <p className="mx-auto max-w-[784px] font-heading text-base leading-relaxed text-pretty text-white sm:text-lg lg:text-xl lg:leading-[1.6]">
               HireLoop connects top talent with world-class companies. Browse
               thousands of curated opportunities and land your next role —
               faster.
@@ -65,7 +61,7 @@ function HeroSection() {
         <div className="mt-12 flex w-full flex-col gap-6">
           <form
             role="search"
-            action="/jobs"
+            action="/browse-jobs"
             method="get"
             className="flex w-full flex-col gap-2 rounded-[16px] border border-white/20 bg-[#101010] p-2 lg:flex-row lg:items-center lg:gap-6 lg:pl-6"
           >
@@ -79,7 +75,7 @@ function HeroSection() {
               </label>
               <input
                 id="hero-search"
-                name="q"
+                name="search"
                 type="text"
                 autoComplete="off"
                 placeholder="Job title, skill or company"
