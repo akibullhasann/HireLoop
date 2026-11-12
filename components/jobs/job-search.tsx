@@ -4,6 +4,7 @@ import { Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
 
 /**
  * Figma "Section - Search & Quick Filters".
@@ -12,13 +13,29 @@ import { Input } from "@/components/ui/input"
  * server query is handled separately, so submitting is intentionally a no-op.
  */
 function JobSearch() {
+
+  const router = useRouter();
+  const handleSubmit = (event:React.FormEvent<HTMLFormElement>)=>{
+    event.preventDefault()
+    
+
+    const formData = new FormData(event.currentTarget);
+    const data = Object.fromEntries(formData.entries())
+    console.log(data);
+    const search = data.search
+
+    const params = new URLSearchParams()
+    params.set('search',search as string)
+    router.push(`/browse-jobs?${params.toString()}`)
+
+  }
   return (
     <section
       aria-label="Search jobs"
       className="rounded-[12px] border border-white/[0.07] bg-[#141418] p-4 shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)] sm:p-[25px]"
     >
       <form
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={handleSubmit}
         className="flex flex-col gap-3 sm:flex-row"
       >
         <div className="relative min-w-0 flex-1">

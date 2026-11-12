@@ -1,3 +1,4 @@
+'use client'
 import {
   Bookmark,
   Briefcase,
@@ -11,6 +12,7 @@ import {
 import { formatJobDate } from "@/lib/format"
 import type { ManagedJob, ManagedJobStatus } from "@/lib/jobs"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 type JobCardProps = {
   job: ManagedJob
@@ -32,6 +34,8 @@ const statusStyles: Record<ManagedJobStatus, string> = {
  * Figma "Article - Job Card", adapted to the fields available on `ManagedJob`.
  */
 function JobCard({ job }: JobCardProps) {
+
+  const router = useRouter();
   const initial = job.company.charAt(0).toUpperCase() || "?"
 
   const chips = [
@@ -47,8 +51,14 @@ function JobCard({ job }: JobCardProps) {
     },
   ].filter((chip) => chip.value)
 
+  const handleJobDetail = (jobId:string)=>{
+    router.push(`/browse-jobs/${jobId}`)
+  }
+
   return (
-    <article className="rounded-[12px] border border-white/[0.07] bg-[#141418] p-4 shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)] transition-colors hover:border-white/15 sm:p-[25px]">
+    <article
+     onClick={() => handleJobDetail(job.id)}
+     className="rounded-[12px] border border-white/[0.07] bg-[#141418] p-4 shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)] transition-colors hover:border-white/15 sm:p-[25px]">
       <div className="flex items-start gap-4 sm:gap-5">
         <span
           aria-hidden="true"

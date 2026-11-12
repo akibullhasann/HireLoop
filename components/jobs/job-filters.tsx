@@ -6,6 +6,7 @@ import { Check, Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import type { JobFilterGroup, JobFilterOption } from "@/lib/job-filters"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 type JobFiltersProps = {
   filters: JobFilterGroup[]
@@ -147,6 +148,17 @@ function SearchableFilter({ group }: { group: JobFilterGroup }) {
  * is not written to the URL or the server query yet.
  */
 function JobFilters({ filters, className }: JobFiltersProps) {
+  const router = useRouter()
+  
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>)=>{
+    console.log(event.target.value)
+    const params = new URLSearchParams(window.location.search)
+    params.set(event.target.name, event.target.value)
+
+    router.push(`browse-jobs?${params.toString()}`)
+
+  }
+
   return (
     <aside
       aria-labelledby="job-filters-heading"
@@ -179,6 +191,7 @@ function JobFilters({ filters, className }: JobFiltersProps) {
                     type={group.control === "single" ? "radio" : "checkbox"}
                     name={group.key}
                     option={option}
+                    onChange={handleCheckboxChange}
                   />
                 ))}
               </div>
