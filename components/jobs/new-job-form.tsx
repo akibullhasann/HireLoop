@@ -106,14 +106,14 @@ function NewJobForm() {
     const result = await createJob(job)
     console.log("created job", result)
 
-    if(result.insertedId){
+    if (result.insertedId) {
       toast.add({
-        title:'job has been created',
+        title: 'job has been created',
         description: 'the job has been suceesfully created'
       })
       router.push('/dashboard/recruiter/jobs')
     }
-    
+
   }
 
   return (

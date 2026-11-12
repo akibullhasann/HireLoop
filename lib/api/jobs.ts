@@ -57,8 +57,8 @@ function toManagedJob(job: ApiJob): ManagedJob {
   }
 }
 
-export async function getJobs(): Promise<ManagedJob[]> {
-  const res = await fetch(`${BASE_URL}/jobs`, { cache: "no-store" })
+export async function getJobs(query: string=''): Promise<ManagedJob[]> {
+  const res = await fetch(`${BASE_URL}/jobs?${query}`, { cache: "no-store" })
 
   if (!res.ok) {
     throw new Error(`The jobs API responded with ${res.status}.`)
