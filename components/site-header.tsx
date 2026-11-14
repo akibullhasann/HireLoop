@@ -43,9 +43,11 @@ function SiteHeader() {
 
   const closeMobile = () => setMobileOpen(false)
 
-  // The dashboard is a full-height app shell with its own layout, so the
-  // marketing header must not overlap the sidebar.
-  if (pathname.startsWith("/dashboard")) return null
+  // The dashboard and checkout are full-height app shells with their own
+  // headers, so the marketing header must not overlap them.
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/payment")) {
+    return null
+  }
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`)
