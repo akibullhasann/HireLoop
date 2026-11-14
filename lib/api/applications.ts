@@ -55,27 +55,11 @@ function toManagedApplication(application: ApiApplication): ManagedApplication {
 }
 
 /** Loads one seeker's applications, newest first. */
-export async function getApplications(
-  applicantId: string
-): Promise<ManagedApplication[]> {
-  if (!applicantId) return []
-
-  const res = await fetch(
-    `${BASE_URL}/applications?applicantId=${encodeURIComponent(applicantId)}`,
-    { cache: "no-store" }
-  )
-
-  if (!res.ok) {
-    throw new Error(`The applications API responded with ${res.status}.`)
-  }
-
-  const data: unknown = await res.json()
-
-  if (!Array.isArray(data)) {
-    throw new Error("The applications API returned an unexpected response.")
-  }
-
-  return data.map((application) =>
-    toManagedApplication(application as ApiApplication)
-  )
+export async function getApplications(query = ""): Promise<ManagedApplication[]> {
+  const res =  await fetch(`${BASE_URL}/applications?${query}`)
+  return res.json();
+}
+export async function getApplicationsCount(query = ""): Promise<{count:number}> {
+  const res =  await fetch(`${BASE_URL}/applications/count?${query}`)
+  return res.json();
 }
