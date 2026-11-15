@@ -12,7 +12,6 @@ import {
 
 import logo from "@/app/images/logo.png"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { toast } from "@/components/ui/toast"
 import { formatPrice, PRO_PLAN } from "@/lib/payments"
 import { cn } from "@/lib/utils"
 
@@ -25,24 +24,18 @@ type CheckoutProps = {
   backHref: string
   email: string
   name: string
+  canceled?: boolean
 }
 
 /**
- * Checkout summary and payment stub.
+ * Checkout summary for HireLoop Pro.
  *
- * The Pay button intentionally stops at a toast for now. When Stripe is wired
- * up, create a Checkout Session on the server and redirect to its URL here.
+ * The Pay form posts to the checkout-session route, which creates a Stripe
+ * Checkout Session and redirects the browser there. Card details are collected
+ * by Stripe, never by HireLoop.
  */
-function Checkout({ backHref, email, name }: CheckoutProps) {
+function Checkout({ backHref, email, name, canceled = false }: CheckoutProps) {
   const total = formatPrice(PRO_PLAN.price)
-
-  function handlePay() {
-    // TODO: replace with a redirect to the Stripe Checkout Session URL.
-    toast.add({
-      title: "Stripe Checkout is coming soon",
-      description: "Payments are not connected yet. You have not been charged.",
-    })
-  }
 
   return (
     <div className="min-h-svh bg-[#08080a] pb-24 text-white">
@@ -79,6 +72,12 @@ function Checkout({ backHref, email, name }: CheckoutProps) {
           <p className="text-[11px] leading-4 font-medium tracking-[0.2em] text-[#6e6e78] uppercase">
             {PRO_PLAN.name}
           </p>
+          {canceled && (
+            <div className="mb-4 rounded-lg bg-red-500/10 p-4 text-sm text-red-300">
+              Your checkout was canceled. You can try again whenever you are
+              ready.
+            </div>
+          )}
           <h1 className="mt-3 text-[32px] leading-10 font-semibold tracking-[-0.025em] text-[#ededef]">
             Complete your payment
           </h1>
@@ -114,7 +113,7 @@ function Checkout({ backHref, email, name }: CheckoutProps) {
                     {total}
                   </p>
                   <p className="text-[13px] leading-5 text-[#a0a0ab]">
-                    /{PRO_PLAN.interval}
+                    one-time
                   </p>
                 </div>
               </div>
@@ -138,7 +137,7 @@ function Checkout({ backHref, email, name }: CheckoutProps) {
             <div className="border-t border-white/[0.07] bg-[#1a1a1f] px-6 py-5">
               <dl className="flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-4 text-[13px] leading-5">
-                  <dt className="text-[#a0a0ab]">Pro plan (monthly)</dt>
+                  <dt className="text-[#a0a0ab]">Pro plan (one-time)</dt>
                   <dd className="text-[#ededef]">{total}</dd>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-[13px] leading-5">
@@ -155,7 +154,7 @@ function Checkout({ backHref, email, name }: CheckoutProps) {
                 </div>
               </dl>
               <p className="mt-3 text-[12px] leading-4 text-[#6e6e78]">
-                Billed monthly. Cancel anytime.
+                One-time payment. No recurring charges.
               </p>
             </div>
           </section>
@@ -234,14 +233,15 @@ function Checkout({ backHref, email, name }: CheckoutProps) {
                 </span>
               </div>
 
-              <Button
-                type="button"
-                onClick={handlePay}
-                className="mt-4 h-12 w-full rounded-[8px] bg-brand text-[15px] font-semibold text-white hover:bg-brand/90"
-              >
-                <LockKeyhole aria-hidden="true" className="size-4" />
-                Pay {total}
-              </Button>
+              <form action="/api/checkout_sessions" method="POST">
+                <Button
+                  type="submit"
+                  className="mt-4 h-12 w-full rounded-[8px] bg-brand text-[15px] font-semibold text-white hover:bg-brand/90"
+                >
+                  <LockKeyhole aria-hidden="true" className="size-4" />
+                  Pay {total}
+                </Button>
+              </form>
 
               <p className="mt-3 flex items-start gap-2 text-[12px] leading-5 text-[#828997]">
                 <ShieldCheck

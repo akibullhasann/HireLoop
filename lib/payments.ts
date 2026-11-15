@@ -3,7 +3,6 @@ export type PaymentPlan = {
   name: string
   tagline: string
   price: number
-  interval: "month" | "year"
   features: readonly string[]
 }
 
@@ -12,7 +11,6 @@ export const PRO_PLAN: PaymentPlan = {
   name: "HireLoop Pro",
   tagline: "Unlock unlimited applications and premium job insights.",
   price: 20,
-  interval: "month",
   features: [
     "Unlimited applications",
     "Premium job insights",

@@ -13,11 +13,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2, Pencil, Plus, Search } from "lucide-react"
+import { Loader2, FileText, Pencil, Plus, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -142,10 +141,6 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
   }, [jobs, query, status, category])
 
   async function handleDelete(job: ManagedJob) {
-
-
-
-
     setDeletingId(job.id)
     setActionError(null)
 
@@ -404,6 +399,18 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
                   <TableCell className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Link
+                        href={`/dashboard/recruiter/jobs/${job.id}/applications`}
+                        aria-label={`View applications for ${job.title}`}
+                        title="View applications"
+                        className="mr-1 inline-flex h-8 items-center gap-1.5 rounded-[8px] border border-white/10 bg-white/[0.03] px-2.5 text-[12px] font-medium text-[#ededef] transition-colors hover:bg-white/[0.07]"
+                      >
+                        <FileText aria-hidden="true" className="size-3.5" />
+                        <span className="hidden sm:inline">
+                          View applications
+                        </span>
+                      </Link>
+
+                      <Link
                         href={`/dashboard/recruiter/jobs/${job.id}/edit`}
                         aria-label={`Edit ${job.title}`}
                         title="Edit job"
@@ -435,9 +442,7 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
                               <Trash2Icon />
                             </AlertDialogMedia>
 
-                            <AlertDialogTitle>
-                              Delete job?
-                            </AlertDialogTitle>
+                            <AlertDialogTitle>Delete job?</AlertDialogTitle>
 
                             <AlertDialogDescription>
                               Are you sure you want to delete
@@ -459,7 +464,6 @@ function ManageJobs({ jobs: initialJobs, error = null }: ManageJobsProps) {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-
                     </div>
                   </TableCell>
                 </TableRow>

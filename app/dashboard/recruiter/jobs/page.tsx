@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { ManageJobs } from "@/components/jobs/manage-jobs"
 import { getJobs } from "@/lib/api/jobs"
 import type { ManagedJob } from "@/lib/jobs"
+import { getSession } from "@/lib/core/server"
 
 export const metadata: Metadata = {
   title: "Manage Job Posts — HireLoop",
@@ -15,8 +16,10 @@ const ManageJobsPage = async () => {
   let jobs: ManagedJob[] = []
   let error: string | null = null
 
+  const session = await getSession();
+
   try {
-    jobs = await getJobs()
+    jobs = await getJobs(`recruiterId=${session?.user.id}`)
   } catch (cause) {
     error = cause instanceof Error ? cause.message : "Failed to load jobs."
   }

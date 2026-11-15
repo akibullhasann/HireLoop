@@ -22,6 +22,7 @@ type ApiJob = {
   requirements?: string
   status?: string
   postedAt?: string
+  recruiterId?: string
 }
 
 const knownStatuses: ManagedJobStatus[] = ["active", "closed", "draft"]
@@ -56,6 +57,7 @@ function toManagedJob(job: ApiJob): ManagedJob {
     requirements: text(job.requirements),
     status: normalizeStatus(job.status),
     postedAt: text(job.postedAt),
+    recruiterId: text(job.recruiterId),
   }
 }
 

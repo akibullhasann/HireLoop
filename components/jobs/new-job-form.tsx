@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { createJob } from "@/lib/actions/jobs"
 import type { JobSubmission, NewJob } from "@/lib/jobs"
 import { toast } from "@/components/ui/toast"
+import { useSession } from "@/lib/auth-client"
 
 const categories = [
   "Design",
@@ -61,12 +62,18 @@ const selectTriggerClassName =
 const textareaClassName =
   "min-h-32 resize-y rounded-[12px] border-white/10 bg-[#1a1a1f] px-3 py-3 text-[13px] leading-5 text-[#ededef] shadow-none placeholder:text-[#828997] focus-visible:border-brand focus-visible:ring-brand/25 dark:bg-[#1a1a1f]"
 
+
+
+
 function readForm(
   form: HTMLFormElement,
-  submitter: HTMLElement | null
+  submitter: HTMLElement | null,
+   recruiterId: string
 ): JobSubmission {
   const data = new FormData(form, submitter)
   const value = (key: string) => String(data.get(key) ?? "").trim()
+
+  
 
   const job: NewJob = {
     title: value("title"),
@@ -81,6 +88,7 @@ function readForm(
     description: value("description"),
     responsibilities: value("responsibilities"),
     requirements: value("requirements"),
+    recruiterId: recruiterId
   }
 
   return {
@@ -92,12 +100,13 @@ function readForm(
 function NewJobForm() {
   const [submitted, setSubmitted] = React.useState<JobSubmission | null>(null)
   const router = useRouter()
+  const { data: session } = useSession()
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const submitter = (event.nativeEvent as SubmitEvent).submitter
-    const job = readForm(event.currentTarget, submitter)
+    const job = readForm(event.currentTarget, submitter, session?.user?.id ?? "")
 
     // This is the single place where the form data is collected, so it can be
     // wired to an API later without touching the individual fields.

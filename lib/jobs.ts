@@ -3,6 +3,8 @@ export type JobStatus = "published" | "draft"
 export type NewJob = {
   title: string
   company: string
+  companyId?: string
+  recruiterId: string
   category: string
   location: string
   employmentType: string

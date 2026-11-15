@@ -10,6 +10,7 @@ import type { NewApplication } from "@/lib/applications"
 import { useSession } from "@/lib/auth-client"
 import type { ManagedJob } from "@/lib/jobs"
 import { getApplicationsCount } from "@/lib/api/applications"
+import { getUserPremiumById } from "@/lib/api/users"
 
 type ApplyButtonProps = {
   job: ManagedJob
@@ -50,12 +51,16 @@ function ApplyButton({ job }: ApplyButtonProps) {
     if (isSubmitting) return
     setIsSubmitting(true)
 
+    const premiumResult = await getUserPremiumById(user.id)
+
+    console.log('premium result', premiumResult)
+
     try {
       const countResult = await getApplicationsCount(
         `applicantId=${user.id}`
       )
 
-      if (countResult.count >= 10) {
+      if (!premiumResult.premium && countResult.count >= 10) {
         toast.add({
           title: "Free application limit reached",
           description:

@@ -60,3 +60,30 @@ export function formatRelativeTime(value: string) {
 
   return formatJobDate(value.slice(0, 10), value)
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+})
+
+/** Formats an ISO timestamp as a readable local date and time. */
+export function formatDateTime(value: string) {
+  if (!value) return "—"
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  return dateTimeFormatter.format(date)
+}
+
+/** Builds one or two uppercase initials from a display name. */
+export function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+
+  if (parts.length === 0) return "?"
+
+  const first = parts[0][0] ?? ""
+  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? "") : ""
+
+  return `${first}${last}`.toUpperCase() || "?"
+}

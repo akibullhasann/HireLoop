@@ -54,12 +54,50 @@ function toManagedApplication(application: ApiApplication): ManagedApplication {
   }
 }
 
-/** Loads one seeker's applications, newest first. */
-export async function getApplications(query = ""): Promise<ManagedApplication[]> {
-  const res =  await fetch(`${BASE_URL}/applications?${query}`)
-  return res.json();
+async function loadApplications(query: string): Promise<ManagedApplication[]> {
+  const res = await fetch(`${BASE_URL}/applications?${query}`, {
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error(`The applications API responded with ${res.status}.`)
+  }
+
+  const data: unknown = await res.json()
+
+  if (!Array.isArray(data)) {
+    throw new Error("The applications API returned an unexpected response.")
+  }
+
+  return data.map((application) =>
+    toManagedApplication(application as ApiApplication)
+  )
 }
-export async function getApplicationsCount(query = ""): Promise<{count:number}> {
-  const res =  await fetch(`${BASE_URL}/applications/count?${query}`)
-  return res.json();
+
+/** Loads one seeker's applications, newest first. */
+export async function getApplications(
+  query = ""
+): Promise<ManagedApplication[]> {
+  return loadApplications(query)
+}
+
+/** Loads every application submitted for a single job, newest first. */
+export async function getApplicationsForJob(
+  jobId: string
+): Promise<ManagedApplication[]> {
+  return loadApplications(`jobId=${encodeURIComponent(jobId)}`)
+}
+
+export async function getApplicationsCount(
+  query = ""
+): Promise<{ count: number }> {
+  const res = await fetch(`${BASE_URL}/applications/count?${query}`, {
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error(`The applications API responded with ${res.status}.`)
+  }
+
+  return res.json()
 }
