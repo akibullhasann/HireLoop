@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ArrowLeft, ArrowUpRight, FileSearch, Info, Search } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, FileSearch, Search } from "lucide-react"
 
 import { ApplicantDetailsSheet } from "@/components/applications/applicant-details-sheet"
 import { ApplicationStatusSelect } from "@/components/applications/application-status-select"
@@ -32,6 +32,7 @@ import {
 import { formatDateTime, formatRelativeTime, getInitials } from "@/lib/format"
 import type { ManagedJob } from "@/lib/jobs"
 import { cn } from "@/lib/utils"
+import { updateApplicationStatus } from "@/lib/actions/applications"
 
 const cardClassName =
   "rounded-[12px] border border-white/[0.07] bg-[#141418] shadow-[0_2px_2px_rgba(0,0,0,0.35),inset_0_0_0_1px_rgba(255,255,255,0.03)]"
@@ -91,8 +92,7 @@ function JobApplications({
   applications: initialApplications,
   error = null,
 }: JobApplicationsProps) {
-  // Persisted statuses come from the server; local overrides keep edits visible
-  // until the update endpoint is connected.
+  
   const [statusOverrides, setStatusOverrides] = React.useState<
     Record<string, ApplicationStatus>
   >({})
@@ -133,16 +133,36 @@ function JobApplications({
   const selectedApplication =
     applications.find((application) => application.id === selectedId) ?? null
 
-  function handleStatusChange(
-    applicationId: string,
-    status: ApplicationStatus
-  ) {
-    // The update endpoint is not wired yet, so keep the change in local state.
-    setStatusOverrides((current) => ({
-      ...current,
-      [applicationId]: status,
-    }))
+  async function handleStatusChange(
+  applicationId: string,
+  status: ApplicationStatus
+) {
+  
+  const previous = statusOverrides[applicationId]
+
+ 
+  setStatusOverrides((current) => ({
+    ...current,
+    [applicationId]: status,
+  }))
+
+  try {
+   
+    await updateApplicationStatus(applicationId, { status })
+  } catch (error) {
+
+    setStatusOverrides((current) => {
+      const next = { ...current }
+      if (previous) {
+        next[applicationId] = previous
+      } else {
+        delete next[applicationId]
+      }
+      return next
+    })
+    console.error("Failed to update status", error)
   }
+}
 
   return (
     <div className="flex flex-col gap-6">
@@ -199,15 +219,7 @@ function JobApplications({
         </div>
       )}
 
-      {applications.length > 0 && (
-        <div className="flex items-start gap-2.5 rounded-[10px] border border-brand/20 bg-brand/[0.08] px-3.5 py-3 text-[12px] leading-5 text-[#c7c4ff]">
-          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-          <p>
-            Status changes are previewed in this view for now. Saving them to
-            the database will be connected separately.
-          </p>
-        </div>
-      )}
+     
 
       <section
         aria-label="Application stats"
